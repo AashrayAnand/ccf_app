@@ -9,7 +9,7 @@ Public docs on this feature which have been referenced are below
 
 [Dev Environment For using Cluster Failover APIs](https://docs.microsoft.com/en-us/previous-versions/windows/desktop/mscs/preparing-a-development-environment#ide-requirements)
 
-[SMB Client APis](https://docs.microsoft.com/en-us/windows/win32/api/smbclnt/)
+[SMB Client APIs](https://docs.microsoft.com/en-us/windows/win32/api/smbclnt/)
 
 CCF Allows for applications running in a windows failover cluster to gracefully resolve closing of old file handles, and re-opening of files, during 
 a process crash.
