@@ -10,15 +10,25 @@
 #pragma comment( lib, "ClusAPI.lib" )  // Cluster API library.
 #pragma comment( lib, "ResUtils.lib" ) // Utility Library.
 #pragma comment( lib, "NTLanMan.lib" ) // NTLANMAN
+
 #include <iostream>
-#include <smbclnt.h>
-#include <processthreadsapi.h>
-#include <combaseapi.h>
+#include <smbclnt.h> /* RegisterAppInstance* */
+#include <processthreadsapi.h> /* GetCurrentProcess */
+#include <combaseapi.h> /* CoCreateGuid */
+
+using std::cout;
+using std::endl;
 
 int main()
 {
     GUID appGuid;
-    CoCreateGuid(&appGuid);
+    
+    if (S_OK == CoCreateGuid(&appGuid)) {
+        cout << "Failed to generate a GUID" << endl;
+        exit(1);
+    }
+
+    // Register new app instance, uniquely identifies this app (static across processes for same app e.g. failover/restart etc.)
     DWORD dwError = RegisterAppInstance(
         GetCurrentProcess(), /* ProcessHandle */
         &appGuid, /* AppInstanceId */
@@ -26,17 +36,19 @@ int main()
         );
 
     if (dwError != ERROR_SUCCESS) {
-        std::cout << "Failed to register app instance with error " << dwError << std::endl;
+        cout << "Failed to register app instance with error " << dwError << 
+            " and ID " << appGuid.Data1 << " " << appGuid.Data2 << " " << appGuid.Data3 << " " << appGuid.Data4 << endl;
+        exit(1);
+    }
+
+    // Once We have registered a new app, must instantiate version specifically for this process (each distinct process for an app is a "version")
+    dwError = RegisterAppInstanceVersion(
+        &appGuid /* AppInstanceId*/,
+        10 /* InstanceVersionHigh */,
+        0 /* InstanceVersionLow */);
+
+    if (dwError != ERROR_SUCCESS) {
+        cout << "Failed to register app instance with error " << dwError << endl;
+        exit(1);
     }
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
